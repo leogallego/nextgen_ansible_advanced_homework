@@ -17,7 +17,7 @@
     organization: "{{ org_name }}"
     state: present
     kind: ssh
-    ssh_key_data: "{{ user_cred_path }}"
+    ssh_key_data: "{{ lookup('file', user_cred_path) }}"
     username: "{{ user_cred_name }}"
 #    tower_config_file: "~/.tower_cli.cfg" 
 
@@ -64,10 +64,10 @@
 - name: Tower Creds key file
   tower_credential:
     name: "{{ opentlc_cred_name }}"
-    organization: Default
+    organization: "{{ org_name }}"
     state: present
     kind: ssh
-    ssh_key_data: /root/.ssh/mykey.pem
+    ssh_key_data: "{{ lookup('file', '/root/.ssh/mykey.pem') }}"
     username: "{{ opentlc_login }}"
 #    tower_config_file: "~/.tower_cli.cfg" 
 
