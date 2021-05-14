@@ -34,16 +34,16 @@
 
 - name: Add tower host
   tower_host:
-    name: "{{host_name}}"
+    name: "{{ host_name }}"
     description: "workstation"
-    inventory: "{{static_inventory_name}}"
+    inventory: "{{ static_inventory_name }}"
     state: present
     tower_config_file: "~/.tower_cli.cfg" 
 
 - name: Associate workstation host to group 
   command: | 
     tower-cli host associate --host "{{host_name}}" --group "{{group_name}}"
-
+# host associate functio doesnt exist in module  
 
 - name: Tower Creds key file
   tower_credential:
@@ -51,12 +51,9 @@
     organization: Default
     state: present
     kind: ssh
-    tower_host: tower1.{{tower_GUID}}.example.opentlc.com
-    tower_username: admin
-    tower_password: r3dh4t1!
-    tower_verify_ssl: no
     ssh_key_data: /root/.ssh/mykey.pem
     username: "{{ opentlc_login }}"
+    tower_config_file: "~/.tower_cli.cfg" 
 
 - name: Remove secret
   file:
