@@ -1,36 +1,39 @@
 - name: Create Homework Assignment project
   tower_project:
-    name: "Homework Assignment"
+    name: "{{ proj_name }}"
     description: "Homework Assignment Project"
-    organization: Default
+    organization: "{{ org_name }}"
     state: present
-    tower_config_file: "~/.tower_cli.cfg"
+    scm_type: git
+    scm_url: "{{ scm_url }}"
+#    tower_config_file: "~/.tower_cli.cfg" 
+# issue with tower_config_file resulting in error msg:
+# > tower_cli.exceptions.TowerCLIError: failed to parse some of the extra variables.
+# https://github.com/ansible/ansible/issues/36988
 
 - name: Machine Credentail to connect to workstation using openstack.pub
   tower_credential:
-    name: Connect_to_workstation
-    organization: Default
+    name: "{{ ssh_cred_name }}"
+    organization: "{{ org_name }}"
     state: present
     kind: ssh
-    tower_host: tower1.{{tower_GUID}}.example.opentlc.com
-    tower_username: admin
-    tower_password: r3dh4t1!
-    ssh_key_data: "/root/.ssh/openstack.pem"
-    username: cloud-user
+    ssh_key_data: "{{ user_cred_path }}"
+    username: "{{ user_cred_name }}"
+#    tower_config_file: "~/.tower_cli.cfg" 
 
 - name: Create Inventory
   tower_inventory:                     
     name: "{{ static_inventory_name }}"  
     organization: "{{ org_name }}"     
     state: present                     
-    tower_config_file: "~/.tower_cli.cfg" 
+#    tower_config_file: "~/.tower_cli.cfg" 
                   
 - name: Create Group in static inventory 
   tower_group:
     name: "{{ group_name }}"
     inventory: "{{ static_inventory_name }}"
     state: present
-    tower_config_file: "~/.tower_cli.cfg" 
+#    tower_config_file: "~/.tower_cli.cfg" 
 
 - name: Add tower host
   tower_host:
@@ -38,12 +41,25 @@
     description: "workstation"
     inventory: "{{ static_inventory_name }}"
     state: present
-    tower_config_file: "~/.tower_cli.cfg" 
+#    tower_config_file: "~/.tower_cli.cfg" 
 
+    
 - name: Associate workstation host to group 
   command: | 
-    tower-cli host associate --host "{{host_name}}" --group "{{group_name}}"
-# host associate functio doesnt exist in module  
+    tower-cli host associate --host "{{ host_name }}" --group "{{ group_name }}"
+# 
+# Add ability to add host to groups and groups as children via AWX collection
+#
+# https://github.com/ansible/awx/issues/5177
+#- name: Associate workstation host to group 
+#  tower_group:
+#    name: "{{ group_name }}"
+#    inventory: "{{ static_inventory_name }}"
+#    state: present
+#    hosts:
+#      - "{{ host_name }}"
+##    tower_config_file: "~/.tower_cli.cfg" 
+
 
 - name: Tower Creds key file
   tower_credential:
@@ -53,7 +69,7 @@
     kind: ssh
     ssh_key_data: /root/.ssh/mykey.pem
     username: "{{ opentlc_login }}"
-    tower_config_file: "~/.tower_cli.cfg" 
+#    tower_config_file: "~/.tower_cli.cfg" 
 
 - name: Remove secret
   file:
