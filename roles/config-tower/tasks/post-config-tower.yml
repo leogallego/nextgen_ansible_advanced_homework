@@ -26,9 +26,11 @@
     tower_config_file: "~/.tower_cli.cfg" 
                   
 - name: Create Group in static inventory 
-  command: |
-    tower-cli group create --inventory "{{static_inventory_name}}"  --name {{group_name}}
-
+  tower_group:
+    name: "{{ group_name }}"
+    inventory: "{{ static_inventory_name }}"
+    state: present
+    tower_config_file: "~/.tower_cli.cfg" 
 
 - name: Add tower host
   tower_host:
@@ -36,10 +38,7 @@
     description: "workstation"
     inventory: "{{static_inventory_name}}"
     state: present
-    tower_host: tower1.{{tower_GUID}}.example.opentlc.com
-    tower_username: admin
-    tower_password: r3dh4t1!
-    tower_verify_ssl: no
+    tower_config_file: "~/.tower_cli.cfg" 
 
 - name: Associate workstation host to group 
   command: | 
