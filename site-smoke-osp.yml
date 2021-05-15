@@ -1,8 +1,35 @@
-- hosts: workstation
+---
+- name: Smoke test playbook
+  hosts: workstation
   gather_facts: false
+
   tasks:
+
   - name: OpenStack servers
+    os_server_info:
+      cloud: openstack
+      server: frontend
+    register: r_front_result
+    tags:
+      - osp.smoke
+
+  - debug: 
+      msg: "{{ r_front_result.openstack_servers }}"
+    tags:
+      - osp.smoke
+
   - name: Curl website
+    uri:
+      url: "http://frontend"
+      return_content: yes
+#    until: '"Welcome" in webpage.content'
+    retries: 10
+    delay: 1
+    register: webpage
+    delegate_to: localhost
+    tags:
+      - osp.smoke
+  
 
   - name: Fail if 'Ansible has done its job' is not in the page content
     fail:
