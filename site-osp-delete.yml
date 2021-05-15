@@ -1,4 +1,6 @@
-- hosts: workstation
+---
+- name: Delete OSP QA environment if smoke test fails
+  hosts: workstation
   become: yes
   roles:
     - osp-instance-delete
