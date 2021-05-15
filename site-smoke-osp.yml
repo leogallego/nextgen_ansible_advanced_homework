@@ -22,6 +22,7 @@
     uri:
       url: "http://frontend"
       return_content: yes
+      status_code: 200
 #    until: '"Welcome" in webpage.content'
     retries: 10
     delay: 1
