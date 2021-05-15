@@ -6,6 +6,8 @@
     state: present
     scm_type: git
     scm_url: "{{ scm_url }}"
+    scm_update_on_launch: true
+    scm_update_cache_timeout: 120
 #    tower_config_file: "~/.tower_cli.cfg" 
 # issue with tower_config_file resulting in error msg:
 # > tower_cli.exceptions.TowerCLIError: failed to parse some of the extra variables.

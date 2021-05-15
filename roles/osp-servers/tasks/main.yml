@@ -2,38 +2,72 @@
 # tasks file for osp.servers
 - name: Create osp server instances
   os_server:
-    state: "{{ __os_servers.state | default('present') }}"
-    cloud: "{{ __os_servers.cloud | default('openstack') }}"
-    name: "{{ __os_servers.name }}"
-    image: "{{ __os_servers.image | default('rhel-guest') }}"
-    key_name: "{{ __os_servers.key_name | default('ansible_ssh_key') }}"
-    flavor: "{{ __os_servers.flavor | default('m1.medium') }}"
-    security_groups: "{{ __os_servers.security_group }}"
+    state: "{{ __os_server.state | default('present') }}"
+    cloud: "{{ __os_server.cloud | default('openstack') }}"
+    name: "{{ __os_server.name }}"
+    image: "{{ __os_server.image | default('rhel-guest') }}"
+    key_name: "{{ __os_server.key_name | default('ansible_ssh') }}"
+    flavor: "{{ __os_server.flavor | default('m1.medium') }}"
+    security_groups: "{{ __os_server.security_group }}"
     delete_fip: yes
     wait: no
     nics:
-      - net-name: "{{ __os_servers.net_name | default('int_network') }}"
-    meta: "group={{ __os_servers.meta.group }},deployment_name={{ __os_servers.meta.deployment_name }}"
+      - net-name: "{{ __os_server.net_name | default('int_network') }}"
+    meta: "group={{ __os_server.meta.group }},deployment_name={{ __os_server.meta.deployment_name }}"
     userdata: |
       #!/bin/bash
       curl -o /tmp/openstack.pub http://www.opentlc.com/download/ansible_bootcamp/openstack_keys/openstack.pub
       cat /tmp/openstack.pub >> /home/cloud-user/.ssh/authorized_keys
+      curl -o /tmp/internal.repo http://www.opentlc.com/download/ansible_bootcamp/repo/internal.repo
+      cp /tmp/internal.repo /etc/yum.repos.d/internal.repo
   loop: "{{ osp_servers }}"
   loop_control:
-    loop_var: __os_servers
+    loop_var: __os_server
+  register: r_instances
+## review if mykey.pem pub key is needed and if openstack.pub should be from opentlc.com or from control node
 
 
-- name: Configure floting IP for OSP servers
-  when:  os_server_state != "absent"
+## testing
+
+- name: Gather info from osp instances
+  os_server_info:
+    cloud: "{{ __os_instance.cloud | default('openstack') }}"
+    server: "{{ __os_instance.name }}"
+    filters:
+      vm_state: active
+  loop: "{{ r_instances.results }}"
+  loop_control:
+    loop_var: __os_instance
+  register: r_active_instances
+
+- debug:
+    msg: "{{ r_active_instances.openstack_servers }}"
+
+
+- name: Configure floating IP for OSP servers
   os_floating_ip:
     state: "{{ __fip.state | default('present') }}"
     cloud: "{{ __fip.cloud | default('openstack') }}"
     reuse: yes
     server: "{{ __fip.name }}"
-    network: "{{ __fip.floting_network | default('ext_network') }}"
+    network: "{{ __fip.ext_network_name | default('ext_network') }}"
     wait: true
-    timeout: 200
+    timeout: 300
   loop: "{{ osp_servers }}"
   loop_control:
     loop_var: __fip
+#  when: __fip.name in r_active_instances.results
+  register: r_fip
+
+- name: Wait for servers with fip to be available
+  wait_for:
+    host: "{{ __fip.floating_ip.floating_ip_address }}"
+    port: 22
+    search_regex: OpenSSH
+    timeout: 600
+  loop: "{{ r_fip.results }}"
+  loop_control:
+    loop_var: __fip
+  delegate_to: "{{ inventory_hostname }}"
+
 
