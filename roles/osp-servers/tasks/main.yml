@@ -2,18 +2,18 @@
 # tasks file for osp.servers
 - name: Create osp server instances
   os_server:
-    state: "{{ __os_server.state | default('present') }}"
-    cloud: "{{ __os_server.cloud | default('openstack') }}"
-    name: "{{ __os_server.name }}"
-    image: "{{ __os_server.image | default('rhel-guest') }}"
-    key_name: "{{ __os_server.key_name | default('ansible_ssh') }}"
-    flavor: "{{ __os_server.flavor | default('m1.medium') }}"
-    security_groups: "{{ __os_server.security_group }}"
+    state: "{{ __os_server.0.state | default('present') }}"
+    cloud: "{{ __os_server.0.cloud | default('openstack') }}"
+    name: "{{ __os_server.0.name }}"
+    image: "{{ __os_server.0.image | default('rhel-guest') }}"
+    key_name: "{{ __os_server.0.key_name | default('ansible_ssh') }}"
+    flavor: "{{ __os_server.0.flavor | default('m1.medium') }}"
+    security_groups: "{{ __os_server.0.security_group }}"
     delete_fip: yes
     wait: no
     nics:
-      - net-name: "{{ __os_server.net_name | default('int_network') }}"
-    meta: "group={{ __os_server.meta.group }},deployment_name={{ __os_server.meta.deployment_name }}"
+      - net-name: "{{ __os_server.0.net_name | default('int_network') }}"
+    meta: "group={{ __os_server.1.group }},deployment_name={{ __os_server.1.deployment_name }}"
     userdata: |
       #!/bin/bash
       curl -o /tmp/openstack.pub http://www.opentlc.com/download/ansible_bootcamp/openstack_keys/openstack.pub
