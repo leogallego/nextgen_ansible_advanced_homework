@@ -9,20 +9,21 @@
     os_server_info:
       cloud: openstack
       server: frontend
-    register: r_front_result
+    register: r_os_info
     tags:
       - osp.smoke
 
   - debug: 
-      msg: "{{ r_front_result.openstack_servers }}"
+      msg: "{{ r_os_info.openstack_servers }}"
     tags:
       - osp.smoke
 
   - name: Curl website
     uri:
-      url: "http://{{ r_front_result.opentack_servers.public_v4}}"
+      url: "http://{{ item.public_v4 }}"
       return_content: yes
       status_code: 200
+    loop: "{{ r_os_info }}"
     register: webpage
     delegate_to: localhost
     tags:
