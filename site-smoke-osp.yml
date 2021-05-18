@@ -23,7 +23,8 @@
       url: "http://{{ item.public_v4 }}"
       return_content: yes
       status_code: 200
-    loop: "{{ r_os_info }}"
+    loop:
+      - "{{ r_os_info.openstack_servers }}"
     register: webpage
     delegate_to: localhost
     tags:
