@@ -18,14 +18,14 @@
       #!/bin/bash
       curl -o /tmp/openstack.pub http://www.opentlc.com/download/ansible_bootcamp/openstack_keys/openstack.pub
       cat /tmp/openstack.pub >> /home/cloud-user/.ssh/authorized_keys
-      curl -o /tmp/internal.repo http://www.opentlc.com/download/ansible_bootcamp/repo/internal.repo
-      cp /tmp/internal.repo /etc/yum.repos.d/internal.repo
-  loop: "{{ osp_servers }}"
+  loop: "{{ osp_servers | subelements('meta') }}"
   loop_control:
     loop_var: __os_server
   register: r_instances
 ## review if mykey.pem pub key is needed and if openstack.pub should be from opentlc.com or from control node
-
+## review internal repo:
+#      curl -o /tmp/internal.repo http://www.opentlc.com/download/ansible_bootcamp/repo/internal.repo
+#      cp /tmp/internal.repo /etc/yum.repos.d/internal.repo
 
 ## create repo with task
 #- name: Create custom repository in provisioned servers
@@ -36,8 +36,6 @@
 #    owner: root
 #    group: root
 #  
-
-
 
 ## testing wait for present vm for floating ip
 
@@ -65,7 +63,7 @@
     network: "{{ __fip.ext_network_name | default('ext_network') }}"
     wait: true
     timeout: 300
-  loop: "{{ osp_servers }}"
+  loop: "{{ osp_servers | subelements('meta') }}"
   loop_control:
     loop_var: __fip
 #  when: __fip.name in r_active_instances.results
