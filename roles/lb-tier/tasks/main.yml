@@ -1,3 +1,20 @@
 ---
+# lb-tier/tasks/main.yml
+- name: Install load balancer packages
+  package:
+    name: "{{ load_balancer_packages }}"
+    state: present
+
+- name: Configure haproxy load balancing
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify: restart_haproxy
+
+- name: Enable haproxy
+  service:
+    name: haproxy
+    state: started
+    enabled: true
 
 
