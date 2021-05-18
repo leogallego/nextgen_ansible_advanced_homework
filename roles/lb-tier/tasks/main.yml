@@ -2,7 +2,7 @@
 # lb-tier/tasks/main.yml
 - name: Install load balancer packages
   package:
-    name: "{{ load_balancer_packages }}"
+    name: "{{ payload }}"
     state: present
 
 - name: Configure haproxy load balancing
