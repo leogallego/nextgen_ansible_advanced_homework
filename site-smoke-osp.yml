@@ -8,7 +8,7 @@
   - name: OpenStack servers
     os_server_info:
       cloud: openstack
-      server: frontend
+      server: 'frontend'
     register: r_frontend
     tags:
       - osp.smoke
@@ -25,6 +25,7 @@
       status_code: 200
     loop: "{{ r_frontend.openstack_servers }}"
     register: webpage
+    ignore_errors: true
     tags:
       - osp.smoke
   
