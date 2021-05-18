@@ -39,28 +39,29 @@
 
 ## testing wait for present vm for floating ip
 
-- name: Gather info from osp instances
-  os_server_info:
-    cloud: "{{ __os_instance.0.cloud | default('openstack') }}"
-    server: "{{ __os_instance.0.name }}"
-    filters:
-      vm_state: active
-  loop: "{{ r_instances.results }}"
-  loop_control:
-    loop_var: __os_instance
-  register: r_active_instances
+#- name: Gather info from osp instances
+#  os_server_info:
+#    cloud: "{{ __os_instance.0.cloud | default('openstack') }}"
+#    server: "{{ __os_instance.0.name }}"
+#    filters:
+#      vm_state: active
+##  loop with subelements?
+#  loop: "{{ r_instances.results }}"
+#  loop_control:
+#    loop_var: __os_instance
+#  register: r_active_instances
 
-- debug:
-    msg: "{{ r_active_instances.openstack_servers }}"
+#- debug:
+#    msg: "{{ r_active_instances.openstack_servers }}"
 
 
 - name: Configure floating IP for OSP servers
   os_floating_ip:
-    state: "{{ __fip.state | default('present') }}"
-    cloud: "{{ __fip.cloud | default('openstack') }}"
+    state: "{{ __fip.0.state | default('present') }}"
+    cloud: "{{ __fip.0.cloud | default('openstack') }}"
     reuse: yes
-    server: "{{ __fip.name }}"
-    network: "{{ __fip.ext_network_name | default('ext_network') }}"
+    server: "{{ __fip.0.name }}"
+    network: "{{ __fip.0.ext_network_name | default('ext_network') }}"
     wait: true
     timeout: 300
   loop: "{{ osp_servers | subelements('meta') }}"
