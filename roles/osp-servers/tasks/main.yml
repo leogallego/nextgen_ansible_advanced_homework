@@ -41,8 +41,8 @@
 
 - name: Gather info from osp instances
   os_server_info:
-    cloud: "{{ __os_instance.cloud | default('openstack') }}"
-    server: "{{ __os_instance.name }}"
+    cloud: "{{ __os_instance.0.cloud | default('openstack') }}"
+    server: "{{ __os_instance.0.name }}"
     filters:
       vm_state: active
   loop: "{{ r_instances.results }}"
