@@ -9,7 +9,7 @@
   os_server:
     state: absent
     name: "{{ __delete_osp_instance.name }}"
-  loop: "{{ r_os_servers }}"
+  loop: "{{ r_os_servers.openstack_servers }}"
   loop_control:
     loop_var: __delete_osp_instance
       
